@@ -8,8 +8,6 @@ AUTO_LOAD = ["climate_ir"]
 mirage_ns = cg.esphome_ns.namespace("mirage")
 MirageClimate = mirage_ns.class_("MirageClimate", climate_ir.ClimateIR)
 
-# --- 2025 COMPATIBLE SCHEMA ---
-# We manually add the 'supports_X' flags so register_climate_ir doesn't crash
 CONFIG_SCHEMA = climate.climate_schema(MirageClimate).extend(
     {
         cv.GenerateID(): cv.declare_id(MirageClimate),
