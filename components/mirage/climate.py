@@ -8,8 +8,9 @@ AUTO_LOAD = ["climate_ir"]
 mirage_ns = cg.esphome_ns.namespace("mirage")
 MirageClimate = mirage_ns.class_("MirageClimate", climate_ir.ClimateIR)
 
-# We use string literals "transmitter_id" to avoid import errors
-CONFIG_SCHEMA = climate.CLIMATE_SCHEMA.extend(
+# --- THE 2025 COMPATIBLE FIX ---
+# We use the new 'climate_schema' function instead of the old constants
+CONFIG_SCHEMA = climate.climate_schema(MirageClimate).extend(
     {
         cv.GenerateID(): cv.declare_id(MirageClimate),
         cv.Optional("transmitter_id"): cv.use_id(remote_transmitter.RemoteTransmitterComponent),
