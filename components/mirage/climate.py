@@ -8,13 +8,20 @@ AUTO_LOAD = ["climate_ir"]
 mirage_ns = cg.esphome_ns.namespace("mirage")
 MirageClimate = mirage_ns.class_("MirageClimate", climate_ir.ClimateIR)
 
-# --- 2025 COMPATIBLE SCHEMA WITH SENSOR SUPPORT ---
+# --- 2025 COMPATIBLE SCHEMA ---
+# We manually add the 'supports_X' flags so register_climate_ir doesn't crash
 CONFIG_SCHEMA = climate.climate_schema(MirageClimate).extend(
     {
         cv.GenerateID(): cv.declare_id(MirageClimate),
         cv.Optional("transmitter_id"): cv.use_id(remote_transmitter.RemoteTransmitterComponent),
         cv.Optional("receiver_id"): cv.use_id(remote_receiver.RemoteReceiverComponent),
         cv.Optional(CONF_SENSOR): cv.use_id(sensor.Sensor),
+        
+        # These are the missing keys causing your KeyError
+        cv.Optional("supports_cool", default=True): cv.boolean,
+        cv.Optional("supports_heat", default=True): cv.boolean,
+        cv.Optional("supports_dry", default=True): cv.boolean,
+        cv.Optional("supports_fan_only", default=True): cv.boolean,
     }
 )
 
