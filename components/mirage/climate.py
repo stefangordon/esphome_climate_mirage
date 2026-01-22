@@ -8,7 +8,7 @@ AUTO_LOAD = ["climate_ir"]
 mirage_ns = cg.esphome_ns.namespace("mirage")
 MirageClimate = mirage_ns.class_("MirageClimate", climate_ir.ClimateIR)
 
-# --- 2025 COMPATIBLE SCHEMA ---
+# --- SCHEMA ---
 CONFIG_SCHEMA = climate.climate_schema(MirageClimate).extend(
     {
         cv.GenerateID(): cv.declare_id(MirageClimate),
@@ -27,5 +27,12 @@ CONFIG_SCHEMA = climate.climate_schema(MirageClimate).extend(
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     await climate_ir.register_climate_ir(var, config)
-    # --- THE FIX: Force the name explicitly ---
+    
+    # --- THE MISSING LINK ---
+    # This actually connects the sensor to the Climate object
+    if CONF_SENSOR in config:
+        sens = await cg.get_variable(config[CONF_SENSOR])
+        cg.add(var.set_sensor(sens))
+
+    # Force the name
     cg.add(var.set_name(config[CONF_NAME]))
