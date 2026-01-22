@@ -8,7 +8,6 @@ AUTO_LOAD = ["climate_ir"]
 mirage_ns = cg.esphome_ns.namespace("mirage")
 MirageClimate = mirage_ns.class_("MirageClimate", climate_ir.ClimateIR)
 
-# --- SCHEMA ---
 CONFIG_SCHEMA = climate.climate_schema(MirageClimate).extend(
     {
         cv.GenerateID(): cv.declare_id(MirageClimate),
@@ -28,11 +27,19 @@ async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     await climate_ir.register_climate_ir(var, config)
     
-    # --- THE MISSING LINK ---
-    # This actually connects the sensor to the Climate object
+    # --- FIX 1: CONNECT THE TRANSMITTER (The Smoking Gun) ---
+    if "transmitter_id" in config:
+        transmitter = await cg.get_variable(config["transmitter_id"])
+        cg.add(var.set_transmitter(transmitter))
+
+    # --- FIX 2: CONNECT THE SENSOR ---
     if CONF_SENSOR in config:
         sens = await cg.get_variable(config[CONF_SENSOR])
         cg.add(var.set_sensor(sens))
 
-    # Force the name
+    # --- FIX 3: FORCE NAME & TRAITS ---
     cg.add(var.set_name(config[CONF_NAME]))
+    cg.add(var.set_supports_cool(config["supports_cool"]))
+    cg.add(var.set_supports_heat(config["supports_heat"]))
+    cg.add(var.set_supports_dry(config["supports_dry"]))
+    cg.add(var.set_supports_fan_only(config["supports_fan_only"]))
