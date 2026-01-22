@@ -1,13 +1,14 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import climate, climate_ir, remote_transmitter, remote_receiver, sensor
-from esphome.const import CONF_ID, CONF_SENSOR
+from esphome.const import CONF_ID, CONF_SENSOR, CONF_NAME
 
 AUTO_LOAD = ["climate_ir"]
 
 mirage_ns = cg.esphome_ns.namespace("mirage")
 MirageClimate = mirage_ns.class_("MirageClimate", climate_ir.ClimateIR)
 
+# --- 2025 COMPATIBLE SCHEMA ---
 CONFIG_SCHEMA = climate.climate_schema(MirageClimate).extend(
     {
         cv.GenerateID(): cv.declare_id(MirageClimate),
@@ -15,7 +16,7 @@ CONFIG_SCHEMA = climate.climate_schema(MirageClimate).extend(
         cv.Optional("receiver_id"): cv.use_id(remote_receiver.RemoteReceiverComponent),
         cv.Optional(CONF_SENSOR): cv.use_id(sensor.Sensor),
         
-        # These are the missing keys causing your KeyError
+        # Feature flags
         cv.Optional("supports_cool", default=True): cv.boolean,
         cv.Optional("supports_heat", default=True): cv.boolean,
         cv.Optional("supports_dry", default=True): cv.boolean,
@@ -26,3 +27,5 @@ CONFIG_SCHEMA = climate.climate_schema(MirageClimate).extend(
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     await climate_ir.register_climate_ir(var, config)
+    # --- THE FIX: Force the name explicitly ---
+    cg.add(var.set_name(config[CONF_NAME]))
