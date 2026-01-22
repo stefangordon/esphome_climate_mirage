@@ -1,11 +1,14 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import climate_ir, remote_receiver, sensor
-from esphome.const import CONF_ID, CONF_SENSOR, CONF_RECEIVER_ID
+from esphome.components import climate_ir
+from esphome.const import CONF_ID
 
 # Dependencies - climate_ir handles climate registration
 AUTO_LOAD = ["climate_ir"]
 CODEOWNERS = ["@stefangordon"]
+
+# CONF_RECEIVER_ID is defined in climate_ir, not esphome.const
+CONF_RECEIVER_ID = "receiver_id"
 
 mirage_ns = cg.esphome_ns.namespace("mirage")
 MirageClimate = mirage_ns.class_("MirageClimate", climate_ir.ClimateIR)
